@@ -31,7 +31,7 @@ We will build a **Progressive Web App (PWA)** that works offline by default. Lea
 - **Deployment:** Netlify/Vercel (frontend), Render (backend)
 
 ---
-                                         b                          bc ccccccccccccccccccccccv cv
+
 ## Team Roles & Responsibilities
 - *Lithishwaran* - **Frontend Developer:** UI development, offline support, PWA setup  
 - *Thamizhanban* - **Backend Developer:** APIs and data sync logic  
@@ -84,3 +84,15 @@ src/
 ```bash
 npm install
 npm run dev
+
+
+## Code Quality & Consistency Setup
+
+### Strict TypeScript Configuration
+Strict TypeScript settings are enabled to catch potential bugs early, prevent implicit `any` types, eliminate unused variables, and ensure consistent file naming across environments.
+
+### ESLint & Prettier
+ESLint enforces code quality rules while Prettier handles consistent formatting. Together they ensure readable, maintainable, and error-free code.
+
+### Pre-Commit Hooks
+Husky and lint-staged run ESLint and Prettier before every commit, preventing bad code from entering the repository and maintaining team-wide consistency.
