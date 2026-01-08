@@ -31,7 +31,7 @@ We will build a **Progressive Web App (PWA)** that works offline by default. Lea
 - **Deployment:** Netlify/Vercel (frontend), Render (backend)
 
 ---
-
+                                         b                          bc ccccccccccccccccccccccv cv
 ## Team Roles & Responsibilities
 - *Lithishwaran* - **Frontend Developer:** UI development, offline support, PWA setup  
 - *Thamizhanban* - **Backend Developer:** APIs and data sync logic  
@@ -62,3 +62,25 @@ We will build a **Progressive Web App (PWA)** that works offline by default. Lea
 - Positive mentor or reviewer feedback  
 
 ---
+
+## Folder Structure
+
+src/
+├── app/          # Application routes, layouts, and server components
+├── components/   # Reusable UI components shared across pages
+├── lib/          # Backend utilities (DB, configs, helpers)
+├── types/        # Shared TypeScript interfaces and types
+
+### Folder Purpose
+- **app/**: Uses Next.js App Router for routing and server-side logic
+- **components/**: Keeps UI modular and reusable
+- **lib/**: Central place for backend logic like database access and utilities
+- **types/**: Ensures type safety across frontend and backend
+
+---
+
+## Setup Instructions
+
+```bash
+npm install
+npm run dev
