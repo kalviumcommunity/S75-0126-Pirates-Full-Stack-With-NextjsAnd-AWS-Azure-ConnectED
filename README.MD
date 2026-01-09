@@ -96,3 +96,27 @@ ESLint enforces code quality rules while Prettier handles consistent formatting.
 
 ### Pre-Commit Hooks
 Husky and lint-staged run ESLint and Prettier before every commit, preventing bad code from entering the repository and maintaining team-wide consistency.
+
+
+## Docker & Docker Compose Setup (Local Development)
+
+This project uses Docker and Docker Compose to run the full stack locally, including the Next.js app, PostgreSQL database, and Redis cache.
+
+### Dockerfile
+The Dockerfile containerizes the Next.js application by installing dependencies, building the app, and running it on port 3000.
+
+### Docker Compose
+The docker-compose.yml file defines three services:
+- **app**: Next.js application
+- **db**: PostgreSQL database with persistent volume storage
+- **redis**: Redis cache for fast in-memory operations
+
+All services run on a shared bridge network to enable inter-container communication.
+
+### Benefits
+- One-command setup for the entire stack
+- Consistent environments across all developers
+- Eliminates “it works on my machine” issues
+
+### Reflection
+During setup, common challenges included port conflicts and build times. These were resolved by clearly defining ports, using lightweight Alpine images, and isolating services through Docker networks.
