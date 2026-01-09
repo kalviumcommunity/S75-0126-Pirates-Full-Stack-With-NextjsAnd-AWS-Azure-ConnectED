@@ -2,6 +2,19 @@
   "name": "connected",
   "version": "0.1.0",
   "private": true,
+  "description": "For rural schools with low bandwidth, digital learning resources often fail to load.\r This project aims to rethink digital education by building a lightweight,\r offline-first web application that allows students to access learning content\r reliably even with slow or intermittent internet connectivity.",
+  "homepage": "https://github.com/kalviumcommunity/S75-0126-Pirates-Full-Stack-With-NextjsAnd-AWS-Azure-ConnectED#readme",
+  "bugs": {
+    "url": "https://github.com/kalviumcommunity/S75-0126-Pirates-Full-Stack-With-NextjsAnd-AWS-Azure-ConnectED/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kalviumcommunity/S75-0126-Pirates-Full-Stack-With-NextjsAnd-AWS-Azure-ConnectED.git"
+  },
+  "license": "ISC",
+  "author": "",
+  "type": "commonjs",
+  "main": "index.js",
   "scripts": {
     "dev": "next dev",
     "build": "next build",
@@ -10,7 +23,10 @@
     "prepare": "husky install"
   },
   "dependencies": {
+    "@prisma/client": "^6.15.0",
+    "dotenv": "^17.2.3",
     "next": "16.1.1",
+    "prisma": "^6.14.0",
     "react": "19.2.3",
     "react-dom": "19.2.3"
   },
@@ -24,12 +40,10 @@
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-prettier": "^5.5.4",
     "husky": "^8.0.0",
-    "lint-staged": {
-  "*.{ts,tsx,js,jsx}": ["eslint --fix", "prettier --write"]
-},
     "postcss": "^8.4.35",
     "prettier": "^3.7.4",
     "tailwindcss": "^4",
-    "typescript": "^5"
+    "ts-node": "^10.9.2",
+    "typescript": "^5.9.3"
   }
 }
