@@ -62,3 +62,7 @@ A standard PR template is used for all pull requests to ensure consistency and
 clarity during reviews.
 
 **Location:**
+
+Prisma ORM Integration
+
+We use Prisma ORM to connect our Next.js application to a PostgreSQL database. Prisma provides type-safe, auto-generated queries that simplify database operations, improve reliability, and boost developer productivity. Our setup includes defining models in schema.prisma, generating the Prisma Client, and initializing a single reusable client instance for the app. This allows us to perform safe and efficient database queries while keeping code clean and maintainable.

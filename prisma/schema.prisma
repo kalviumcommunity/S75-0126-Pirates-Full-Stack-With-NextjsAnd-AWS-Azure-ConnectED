@@ -1,10 +1,11 @@
 generator client {
-  provider = "prisma-client-js"
+  provider      = "prisma-client-js"
+  binaryTargets = ["native"]  // Ensures it works on Windows
 }
 
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL")
+  url      = env("DATABASE_URL")  // ← ADD THIS LINE
 }
 
 model User {
@@ -17,20 +18,20 @@ model User {
 }
 
 model Project {
-  id          Int       @id @default(autoincrement())
+  id          Int      @id @default(autoincrement())
   name        String
   description String?
-  createdAt   DateTime  @default(now())
+  createdAt   DateTime @default(now())
   userId      Int
-  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   tasks       Task[]
 }
 
 model Task {
-  id        Int       @id @default(autoincrement())
+  id        Int      @id @default(autoincrement())
   title     String
   status    String
-  createdAt DateTime  @default(now())
+  createdAt DateTime @default(now())
   projectId Int
   project   Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
 }
