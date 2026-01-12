@@ -66,3 +66,54 @@ clarity during reviews.
 Prisma ORM Integration
 
 We use Prisma ORM to connect our Next.js application to a PostgreSQL database. Prisma provides type-safe, auto-generated queries that simplify database operations, improve reliability, and boost developer productivity. Our setup includes defining models in schema.prisma, generating the Prisma Client, and initializing a single reusable client instance for the app. This allows us to perform safe and efficient database queries while keeping code clean and maintainable.
+
+Database Migrations & Seeding (Prisma ORM)
+
+In this assignment, I implemented reproducible database migrations and data seeding using Prisma ORM to ensure a consistent database schema and initial data across development environments.
+
+Migrations Workflow
+
+Initialized the schema and applied changes using:
+
+npx prisma migrate dev --name init_schema
+
+
+Created additional migrations for schema updates:
+
+npx prisma migrate dev --name <migration_name>
+
+
+Reset and re-applied migrations safely during development using:
+
+npx prisma migrate reset
+
+
+Verified generated SQL files inside prisma/migrations/ to understand schema changes.
+
+Seeding Data
+
+Created a seed script at prisma/seed.ts to insert initial user data.
+
+Configured the seed command in package.json.
+
+Ran the seed using:
+
+npx prisma db seed
+
+
+Ensured idempotency so re-running the seed does not create duplicate records.
+
+Verification
+
+Used Prisma Studio to verify schema and seeded data:
+
+npx prisma studio
+
+
+Production Safety Reflection
+
+Migrations are tested locally and in staging before production.
+
+Database backups are taken prior to applying migrations.
+
+Destructive commands like migrate reset are never used in production.
