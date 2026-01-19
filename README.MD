@@ -191,3 +191,46 @@ Overall, this pattern ensures scalability, maintainability, and better collabora
   ],
   "timestamp": "2026-01-19T10:30:00Z"
 }
+
+
+
+# Input Validation with Zod
+
+## Overview
+
+This project implements input validation for API routes using **Zod**, a TypeScript-first schema validation library. The goal is to ensure that all incoming `POST` and `PUT` requests contain valid, well-structured data before reaching application logic or the database.
+
+By enforcing validation at the API boundary, the application becomes safer, more predictable, and easier to maintain.
+
+---
+
+## Why Input Validation Matters
+
+APIs operate in an untrusted environment. Any client can send malformed, incomplete, or invalid data.
+
+Without validation:
+- Invalid data can corrupt the database
+- Business logic may behave unpredictably
+- Errors surface late and are harder to debug
+
+Input validation ensures that only data matching a predefined contract is allowed into the system.
+
+---
+
+## Zod Schema Definition
+
+Schemas define what valid input looks like. They act as a single source of truth for data structure and constraints.
+
+```ts
+// lib/schemas/userSchema.ts
+import { z } from "zod";
+
+export const userSchema = z.object({
+  name: z.string().min(2, "Name must be at least 2 characters long"),
+  email: z.string().email("Invalid email address"),
+  age: z.number().int().min(18, "User must be 18 or older"),
+});
+
+export type UserInput = z.infer<typeof userSchema>;
+
+

@@ -1,3 +1,8 @@
+
+// app/api/users/route.ts
+import { NextResponse } from "next/server";
+import { userSchema } from "@/src/lib/schemas/userSchema";
+import { ZodError } from "zod";
 import { sendSuccess, sendError } from "@/src/lib/responseHandler"
 
 export async function GET() {
@@ -14,6 +19,42 @@ export async function GET() {
       "USER_FETCH_ERROR",
       500,
       err
+    );
+  }
+}
+
+
+export async function POST(req: Request) {
+  try {
+    const body = await req.json();
+
+    // HARD VALIDATION GATE
+    const validatedData = userSchema.parse(body);
+
+    // Only VALID data reaches here
+    return NextResponse.json({
+      success: true,
+      data: validatedData,
+    });
+
+  } catch (error) {
+    if (error instanceof ZodError) {
+      return NextResponse.json(
+        {
+          success: false,
+          message: "Validation Error",
+          errors: error.errors.map(e => ({
+            field: e.path.join("."),
+            message: e.message,
+          })),
+        },
+        { status: 400 }
+      );
+    }
+
+    return NextResponse.json(
+      { success: false, message: "Internal Server Error" },
+      { status: 500 }
     );
   }
 }
