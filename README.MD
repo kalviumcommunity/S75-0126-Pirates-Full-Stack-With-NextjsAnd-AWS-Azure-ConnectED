@@ -117,3 +117,49 @@ Migrations are tested locally and in staging before production.
 Database backups are taken prior to applying migrations.
 
 Destructive commands like migrate reset are never used in production.
+
+## Transactions & Query Optimisation
+
+### Transaction Usage
+We implemented a transactional workflow where a project and its initial task are created together. If any step fails, Prisma automatically rolls back the entire operation, ensuring data consistency.
+
+### Rollback Verification
+We intentionally triggered a failure during development to confirm that no partial writes occurred, validating atomicity.
+
+### Query Optimisations
+- Used `select` instead of `include` to avoid over-fetching
+- Paginated results using `take`
+- Used `createMany` for batch inserts
+
+### Indexes Added
+Indexes were added on frequently queried fields such as `projectId`, `status`, and `createdAt` to improve lookup and sorting performance.
+
+### Performance Evidence
+Prisma query logs before and after indexing showed improved execution patterns and reduced query cost.
+
+### Anti-patterns Avoided
+- N+1 queries
+- Full table scans
+- Over-fetching relational data
+
+### Production Monitoring Plan
+In production, query latency, slow queries, and error rates would be monitored using database logs and cloud tools like AWS RDS Performance Insights.
+
+## API Route Structure & Naming
+
+The backend APIs follow RESTful conventions using Next.js App Router file-based routing.
+
+### Route Hierarchy
+- GET /api/users – Fetch users (supports pagination)
+- POST /api/users – Create a new user
+- GET /api/tasks – Fetch tasks
+- POST /api/tasks – Create a task
+- GET /api/projects – Fetch projects
+
+### Design Decisions
+- Used plural, lowercase resource names
+- HTTP verbs define actions instead of route names
+- Pagination via query parameters for scalable list endpoints
+- Meaningful HTTP status codes for success and error cases
+
+This structure ensures predictability, easy onboarding for teammates, and clean scalability as APIs grow.
