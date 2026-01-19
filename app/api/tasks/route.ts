@@ -1,26 +1,24 @@
-import { NextResponse } from "next/server";
-
-export async function GET() {
-  return NextResponse.json({
-    data: [
-      { id: 1, title: "Setup API structure" },
-      { id: 2, title: "Test endpoints" },
-    ],
-  });
-}
+import { sendSuccess, sendError } from "@/src/lib/responseHandler"
 
 export async function POST(req: Request) {
-  const body = await req.json();
+  try {
+    const data = await req.json();
 
-  if (!body.title) {
-    return NextResponse.json(
-      { error: "Title is required" },
-      { status: 400 }
+    if (!data.title) {
+      return sendError(
+        "Missing required field: title",
+        "VALIDATION_ERROR",
+        400
+      );
+    }
+
+    return sendSuccess(data, "Task created successfully", 201);
+  } catch (err) {
+    return sendError(
+      "Internal Server Error",
+      "TASK_CREATION_FAILED",
+      500,
+      err
     );
   }
-
-  return NextResponse.json(
-    { message: "Task created", data: body },
-    { status: 201 }
-  );
 }

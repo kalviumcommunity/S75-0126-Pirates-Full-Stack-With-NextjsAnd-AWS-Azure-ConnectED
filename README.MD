@@ -163,3 +163,31 @@ The backend APIs follow RESTful conventions using Next.js App Router file-based 
 - Meaningful HTTP status codes for success and error cases
 
 This structure ensures predictability, easy onboarding for teammates, and clean scalability as APIs grow.
+
+
+### Reflection: Global API Response Handler
+
+Implementing a global API response handler significantly improved the consistency and reliability of our backend APIs. By enforcing a unified response envelope across all endpoints, both success and error responses now follow a predictable structure.
+
+This approach improved developer experience (DX) by:
+- Eliminating ambiguity in API responses
+- Reducing conditional checks on the frontend
+- Making debugging easier with standardized error codes and timestamps
+
+From an observability perspective, structured error responses allow easier integration with logging and monitoring tools such as Postman monitors, Sentry, or server logs. Each error includes a clear code and timestamp, which helps trace issues faster in production environments.
+
+Overall, this pattern ensures scalability, maintainability, and better collaboration across team members, as every developer follows the same response contract for APIs.
+
+## Unified API Response Format
+
+### Success Response
+```json
+{
+  "success": true,
+  "message": "Users fetched successfully",
+  "data": [
+    { "id": 1, "name": "Alice" },
+    { "id": 2, "name": "Bob" }
+  ],
+  "timestamp": "2026-01-19T10:30:00Z"
+}

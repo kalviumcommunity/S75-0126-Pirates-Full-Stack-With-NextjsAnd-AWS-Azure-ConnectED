@@ -1,39 +1,19 @@
-import { NextResponse } from "next/server";
+import { sendSuccess, sendError } from "@/src/lib/responseHandler"
 
-export async function GET(req: Request) {
-  const { searchParams } = new URL(req.url);
-  const page = Number(searchParams.get("page")) || 1;
-  const limit = Number(searchParams.get("limit")) || 10;
-
-  return NextResponse.json({
-    page,
-    limit,
-    data: [
+export async function GET() {
+  try {
+    const users = [
       { id: 1, name: "Alice" },
       { id: 2, name: "Bob" },
-    ],
-  });
-}
+    ];
 
-export async function POST(req: Request) {
-  try {
-    const body = await req.json();
-
-    if (!body.name) {
-      return NextResponse.json(
-        { error: "Name is required" },
-        { status: 400 }
-      );
-    }
-
-    return NextResponse.json(
-      { message: "User created", data: body },
-      { status: 201 }
-    );
-  } catch {
-    return NextResponse.json(
-      { error: "Invalid request body" },
-      { status: 400 }
+    return sendSuccess(users, "Users fetched successfully");
+  } catch (err) {
+    return sendError(
+      "Failed to fetch users",
+      "USER_FETCH_ERROR",
+      500,
+      err
     );
   }
 }
