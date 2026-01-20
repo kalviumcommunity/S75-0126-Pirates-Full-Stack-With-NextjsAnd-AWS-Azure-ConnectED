@@ -1,6 +1,6 @@
 generator client {
   provider      = "prisma-client-js"
-  binaryTargets = ["native"]  // Ensures it works on Windows
+  binaryTargets = ["native"] // Ensures it works on Windows
 }
 
 datasource db {
@@ -9,12 +9,14 @@ datasource db {
 }
 
 model User {
-  id        Int       @id @default(autoincrement())
+  id        Int      @id @default(autoincrement())
   name      String
-  email     String    @unique
+  email     String   @unique
   password  String
-  createdAt DateTime  @default(now())
-  projects  Project[]
+  role      String   @default("user") // future-proof for 2.21
+  createdAt DateTime @default(now())
+
+  projects Project[]
 }
 
 model Project {
