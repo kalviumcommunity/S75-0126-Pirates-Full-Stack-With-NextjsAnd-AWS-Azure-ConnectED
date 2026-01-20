@@ -234,3 +234,13 @@ export const userSchema = z.object({
 export type UserInput = z.infer<typeof userSchema>;
 
 
+## Authentication APIs (Signup & Login)
+
+Signup flow (plaintext → bcrypt hash → DB)
+
+Login flow (compare → JWT issue)
+
+Token expiry (1h)
+
+Token payload (id, email, role)
+
