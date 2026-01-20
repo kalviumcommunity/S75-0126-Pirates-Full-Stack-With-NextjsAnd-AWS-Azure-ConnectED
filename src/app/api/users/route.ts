@@ -1,14 +1,23 @@
-import jwt from "jsonwebtoken";
 import { NextResponse } from "next/server";
 
 export async function GET(req: Request) {
-  const auth = req.headers.get("authorization");
-  const token = auth?.split(" ")[1];
+  const email = req.headers.get("x-user-email");
+  const role = req.headers.get("x-user-role");
 
-  if (!token) {
-    return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+  // Defensive check (should never fail if middleware is correct)
+  if (!email || !role) {
+    return NextResponse.json(
+      { success: false, message: "Unauthorized context" },
+      { status: 401 }
+    );
   }
 
-  jwt.verify(token, process.env.JWT_SECRET!);
-  return NextResponse.json({ message: "Protected data" });
+  return NextResponse.json({
+    success: true,
+    message: "User-accessible protected data",
+    user: {
+      email,
+      role,
+    },
+  });
 }
