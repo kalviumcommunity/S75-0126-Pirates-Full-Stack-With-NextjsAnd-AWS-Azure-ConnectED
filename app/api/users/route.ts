@@ -3,7 +3,8 @@
 import { NextResponse } from "next/server";
 import { userSchema } from "@/src/lib/schemas/userSchema";
 import { ZodError } from "zod";
-import { sendSuccess, sendError } from "@/src/lib/responseHandler"
+import { sendSuccess, sendError } from "@/src/lib/responseHandler";
+import { handleError } from "@/src/lib/errorHandler";
 
 export async function GET() {
   try {
@@ -14,12 +15,7 @@ export async function GET() {
 
     return sendSuccess(users, "Users fetched successfully");
   } catch (err) {
-    return sendError(
-      "Failed to fetch users",
-      "USER_FETCH_ERROR",
-      500,
-      err
-    );
+    return handleError(err, "GET /api/users");
   }
 }
 
