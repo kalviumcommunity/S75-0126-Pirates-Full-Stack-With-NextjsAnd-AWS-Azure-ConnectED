@@ -1,4 +1,4 @@
-import { sendSuccess, sendError } from "@/src/lib/responseHandler"
+import { sendSuccess, sendError } from "@/app/utils/responseHandler";
 
 export async function POST(req: Request) {
   try {

@@ -1,26 +1,22 @@
 generator client {
   provider      = "prisma-client-js"
-  binaryTargets = ["native"] // Ensures it works on Windows
 }
 
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL")
 }
-
 
 enum Role {
   ADMIN
   USER
 }
 
-
 model User {
   id        Int      @id @default(autoincrement())
   name      String
   email     String   @unique
   password  String
-  role      String   @default("USER") // future-proof for 2.21
+  role      Role     @default(USER)
   createdAt DateTime @default(now())
 
   projects Project[]
