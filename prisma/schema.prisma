@@ -43,3 +43,13 @@ model Task {
   @@index([projectId])
   @@index([status, createdAt])
 }
+
+
+model File {
+  id        String   @id @default(uuid())
+  name      String
+  url       String
+  size      Int
+  type      String
+  createdAt DateTime @default(now())
+}
