@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import bcrypt from "bcrypt";
 import {prisma} from "@/app/lib/prisma";
+import redis from "@/app/lib/redis";
+
 
 export async function POST(req: Request) {
   try {
@@ -16,7 +18,7 @@ export async function POST(req: Request) {
         password: hashedPassword,
       },
     });
-
+    
     return NextResponse.json({
       success: true,
       message: "Signup successful",

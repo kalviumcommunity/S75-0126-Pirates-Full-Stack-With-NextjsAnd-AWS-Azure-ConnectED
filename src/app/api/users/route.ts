@@ -5,17 +5,30 @@ import { userSchema } from "../../schemas/userSchema";
 import { ZodError } from "zod";
 import { sendSuccess } from "../../utils/responseHandler";
 import { handleError } from "../../utils/errorHandler";
+import { prisma } from "@/app/lib/prisma";
+import redis from "@/app/lib/redis";
 
 export async function GET() {
   try {
-    const users = [
-      { id: 1, name: "Alice" },
-      { id: 2, name: "Bob" },
-    ];
+    const cacheKey = "users:list";
 
-    return sendSuccess(users, "Users fetched successfully");
-  } catch (err) {
-    return handleError(err, "GET /api/users");
+    const cached = await redis.get(cacheKey);
+    if (cached) {
+      console.log("⚡ Cache Hit");
+      return NextResponse.json(JSON.parse(cached));
+    }
+
+    console.log("🐢 Cache Miss – querying DB");
+    const users = await prisma.user.findMany();
+
+    await redis.set(cacheKey, JSON.stringify(users), "EX", 60);
+
+    return NextResponse.json(users);
+  } catch (error) {
+    return NextResponse.json(
+      { success: false, message: "Failed to fetch users" },
+      { status: 500 }
+    );
   }
 }
 
