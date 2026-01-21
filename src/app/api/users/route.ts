@@ -1,23 +1,56 @@
+
+// app/api/users/route.ts
 import { NextResponse } from "next/server";
+import { userSchema } from "../../schemas/userSchema";
+import { ZodError } from "zod";
+import { sendSuccess } from "../../utils/responseHandler";
+import { handleError } from "../../utils/errorHandler";
 
-export async function GET(req: Request) {
-  const email = req.headers.get("x-user-email");
-  const role = req.headers.get("x-user-role");
+export async function GET() {
+  try {
+    const users = [
+      { id: 1, name: "Alice" },
+      { id: 2, name: "Bob" },
+    ];
 
-  // Defensive check (should never fail if middleware is correct)
-  if (!email || !role) {
+    return sendSuccess(users, "Users fetched successfully");
+  } catch (err) {
+    return handleError(err, "GET /api/users");
+  }
+}
+
+
+export async function POST(req: Request) {
+  try {
+    const body = await req.json();
+
+    // HARD VALIDATION GATE
+    const validatedData = userSchema.parse(body);
+
+    // Only VALID data reaches here
+    return NextResponse.json({
+      success: true,
+      data: validatedData,
+    });
+
+  } catch (error) {
+    if (error instanceof ZodError) {
+      return NextResponse.json(
+        {
+          success: false,
+          message: "Validation Error",
+          errors: error.issues.map(e => ({
+            field: e.path.join("."),
+            message: e.message,
+          })),
+        },
+        { status: 400 }
+      );
+    }
+
     return NextResponse.json(
-      { success: false, message: "Unauthorized context" },
-      { status: 401 }
+      { success: false, message: "Internal Server Error" },
+      { status: 500 }
     );
   }
-
-  return NextResponse.json({
-    success: true,
-    message: "User-accessible protected data",
-    user: {
-      email,
-      role,
-    },
-  });
 }

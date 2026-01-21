@@ -1,77 +1,42 @@
-import { PrismaClient } from '@prisma/client';
-// import * as bcrypt from 'bcrypt'; // Optional: if you want to hash passwords
+import "dotenv/config";
+import { PrismaClient } from "@prisma/client";
+import { Pool } from "pg";
+import { PrismaPg } from "@prisma/adapter-pg";
 
-const prisma = new PrismaClient();
+// Create pg pool
+const pool = new Pool({
+  connectionString: process.env.DATABASE_URL,
+  ssl: { rejectUnauthorized: false },
+});
+
+// Create Prisma adapter
+const adapter = new PrismaPg(pool);
+
+// Create Prisma client with adapter
+const prisma = new PrismaClient({ adapter });
 
 async function main() {
-  console.log('Start seeding...');
+  console.log("Seeding database...");
 
-  await prisma.task.deleteMany();
-  await prisma.project.deleteMany();
-  await prisma.user.deleteMany();
-
-  // 2. Create Users
-  // Using upsert instead of createMany allows you to run this multiple times 
-  // without failing on "Unique constraint" errors for the email.
-  const passwordHash = "password123"; // In a real app, use: await bcrypt.hash('password123', 10);
-
-  const alice = await prisma.user.upsert({
-    where: { email: 'alice@example.com' },
-    update: {},
-    create: {
-      name: 'Alice',
-      email: 'alice@example.com',
-      password: passwordHash,
-      projects: {
-        create: [
-          {
-            name: 'Website Redesign',
-            description: 'Updating the hero section and footer',
-            tasks: {
-              create: [
-                { title: 'Draft new layout', status: 'COMPLETED' },
-                { title: 'Fix CSS bugs', status: 'IN_PROGRESS' },
-              ],
-            },
-          },
-        ],
-      },
+  // Example: Create a user
+  const user = await prisma.user.create({
+    data: {
+      name: "Test User",
+      email: "test@mail.com",
+      password: "123456"
     },
-  });
+  }); 
 
-  const bob = await prisma.user.upsert({
-    where: { email: 'bob@example.com' },
-    update: {},
-    create: {
-      name: 'Bob',
-      email: 'bob@example.com',
-      password: passwordHash,
-      projects: {
-        create: [
-          {
-            name: 'Mobile App API',
-            description: 'Building the backend for the iOS app',
-            tasks: {
-              create: [
-                { title: 'Setup Auth', status: 'TODO' },
-              ],
-            },
-          },
-        ],
-      },
-    },
-  });
-
-  console.log({ alice, bob });
-  console.log('Seed data inserted successfully');
+  console.log("Created user:", user);
 }
 
+
 main()
-  .then(async () => {
-    await prisma.$disconnect();
-  })
-  .catch(async (e) => {
+  .catch((e) => {
     console.error(e);
-    await prisma.$disconnect();
     process.exit(1);
+  })
+  .finally(async () => {
+    await prisma.$disconnect();
+    await pool.end();
   });
