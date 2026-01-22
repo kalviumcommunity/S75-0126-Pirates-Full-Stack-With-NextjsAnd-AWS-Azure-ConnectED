@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import bcrypt from "bcrypt";
 import { prisma } from "@/app/lib/prisma";
-import { welcomeTemplate } from "@/lib/emailTemplates";
+import { welcomeTemplate} from "@/app/lib/emailTemplates";
 import sendgrid from "@sendgrid/mail";
 
 sendgrid.setApiKey(process.env.SENDGRID_API_KEY!);

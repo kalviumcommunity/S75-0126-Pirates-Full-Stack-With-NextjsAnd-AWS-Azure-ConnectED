@@ -3,36 +3,64 @@ import jwt from "jsonwebtoken";
 
 const JWT_SECRET = process.env.JWT_SECRET as string;
 
-type JwtPayload = {
-  email: string;
-  role: "ADMIN" | "USER";
-};
-
 export function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
 
-  // Only guard API routes we care about
-  const isAdminRoute = pathname.startsWith("/api/admin");
-  const isUserRoute = pathname.startsWith("/api/users");
+  /* ------------------ PAGE ROUTE PROTECTION (LU) ------------------ */
 
-  if (!isAdminRoute && !isUserRoute) {
+  // Public pages
+  if (pathname === "/" || pathname.startsWith("/login") || pathname.startsWith("/signup")) {
     return NextResponse.next();
   }
 
+  // Protected pages
+  if (pathname.startsWith("/dashboard") || pathname.startsWith("/users")) {
+    const token = req.cookies.get("token")?.value;
+
+    if (!token) {
+      return NextResponse.redirect(new URL("/login", req.url));
+    }
+
+    try {
+      jwt.verify(token, JWT_SECRET);
+    } catch {
+      return NextResponse.redirect(new URL("/login", req.url));
+    }
+  }
+
+  /* ------------------ API ROUTE PROTECTION (YOUR PROJECT) ------------------ */
+
+  const isAdminRoute = pathname.startsWith("/api/admin");
+  const isUserRoute = pathname.startsWith("/api/users");
+  const isProtectedRoute = isAdminRoute || isUserRoute;
+
+  if (!isProtectedRoute) {
+    return NextResponse.next();
+  }
+
+  // For API routes, accept both Bearer token and cookie
+  let token: string | null = null;
+
+  // Try Bearer token first
   const authHeader = req.headers.get("authorization");
-  if (!authHeader?.startsWith("Bearer ")) {
+  if (authHeader?.startsWith("Bearer ")) {
+    token = authHeader.split(" ")[1];
+  }
+
+  // Fallback to cookie
+  if (!token) {
+    token = req.cookies.get("token")?.value || null;
+  }
+
+  if (!token) {
     return NextResponse.json(
       { success: false, message: "Authorization token missing" },
       { status: 401 }
     );
   }
 
-  const token = authHeader.split(" ")[1];
-
-  let decoded: JwtPayload;
-
   try {
-    decoded = jwt.verify(token, JWT_SECRET) as JwtPayload;
+    jwt.verify(token, JWT_SECRET);
   } catch {
     return NextResponse.json(
       { success: false, message: "Invalid or expired token" },
@@ -40,20 +68,14 @@ export function middleware(req: NextRequest) {
     );
   }
 
-  // RBAC enforcement
-  if (isAdminRoute && decoded.role !== "ADMIN") {
-    return NextResponse.json(
-      { success: false, message: "Admin access only" },
-      { status: 403 }
-    );
-  }
-
-  // Forward trusted user context
-  const headers = new Headers(req.headers);
-  headers.set("x-user-email", decoded.email);
-  headers.set("x-user-role", decoded.role);
-
-  return NextResponse.next({
-    request: { headers },
-  });
+  return NextResponse.next();
 }
+
+export const config = {
+  matcher: [
+    "/dashboard/:path*",
+    "/users/:path*",
+    "/api/admin/:path*",
+    "/api/users/:path*",
+  ],
+};
