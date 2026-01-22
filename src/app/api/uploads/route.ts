@@ -10,33 +10,39 @@ const s3 = new S3Client({
   },
 });
 
-const ALLOWED_TYPES = ["image/jpeg", "image/png", "application/pdf"];
-const MAX_SIZE_MB = 5;
-
 export async function POST(req: Request) {
-  const { filename, fileType, fileSize } = await req.json();
+  try {
+    const { filename, fileType, fileSize } = await req.json();
 
-  // HARD VALIDATION
-  if (!ALLOWED_TYPES.includes(fileType)) {
-    return NextResponse.json({ error: "Invalid file type" }, { status: 400 });
+    // HARD validation (frontend validation is useless alone)
+    const allowedTypes = ["image/png", "image/jpeg", "application/pdf"];
+    const MAX_SIZE = 5 * 1024 * 1024; // 5MB
+
+    if (!allowedTypes.includes(fileType)) {
+      return NextResponse.json({ error: "Invalid file type" }, { status: 400 });
+    }
+
+    if (fileSize > MAX_SIZE) {
+      return NextResponse.json({ error: "File too large" }, { status: 400 });
+    }
+
+    const key = `uploads/${Date.now()}-${filename}`;
+
+    const command = new PutObjectCommand({
+      Bucket: process.env.AWS_BUCKET_NAME!,
+      Key: key,
+      ContentType: fileType,
+    });
+
+    const uploadURL = await getSignedUrl(s3, command, {
+      expiresIn: 60, // seconds
+    });
+
+    return NextResponse.json({
+      uploadURL,
+      fileKey: key,
+    });
+  } catch (err) {
+    return NextResponse.json({ error: "Failed to generate URL" }, { status: 500 });
   }
-
-  if (fileSize > MAX_SIZE_MB * 1024 * 1024) {
-    return NextResponse.json({ error: "File too large" }, { status: 400 });
-  }
-
-  const key = `uploads/${Date.now()}-${filename}`;
-
-  const command = new PutObjectCommand({
-    Bucket: process.env.AWS_BUCKET_NAME!,
-    Key: key,
-    ContentType: fileType,
-  });
-
-  const uploadURL = await getSignedUrl(s3, command, { expiresIn: 60 });
-
-  return NextResponse.json({
-    uploadURL,
-    fileURL: `https://${process.env.AWS_BUCKET_NAME}.s3.amazonaws.com/${key}`,
-  });
 }
