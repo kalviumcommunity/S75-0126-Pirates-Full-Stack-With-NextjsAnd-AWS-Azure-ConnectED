@@ -5,8 +5,8 @@ import { userSchema } from "../../schemas/userSchema";
 import { ZodError } from "zod";
 import { sendSuccess } from "../../utils/responseHandler";
 import { handleError } from "../../utils/errorHandler";
-import { prisma } from "@/app/lib/prisma";
-import redis from "@/app/lib/redis";
+import { prisma } from "@/lib/prisma";
+import redis from "@/lib/redis";
 
 export async function GET() {
   try {
