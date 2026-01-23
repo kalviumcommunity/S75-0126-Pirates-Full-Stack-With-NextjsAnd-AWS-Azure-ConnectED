@@ -1,5 +1,6 @@
 "use client";
-
+import { useState } from "react";
+import ConfirmModal from "@/app/components/confirmModal.";
 import Link from "next/link";
 import { useAuth } from "@/hooks/useAuth";
 import { useUI } from "@/hooks/useUI";
@@ -7,6 +8,7 @@ import { useUI } from "@/hooks/useUI";
 export default function Home() {
   const { user, login, logout, isAuthenticated } = useAuth();
   const { theme, toggleTheme } = useUI();
+  const [showModal, setShowModal] = useState(false);
 
   return (
     <main className="bg-gradient-to-br from-indigo-50 via-white to-blue-50 min-h-[calc(100vh-80px)] flex flex-col items-center justify-center gap-6">
@@ -46,6 +48,17 @@ export default function Home() {
         Toggle Theme ({theme})
       </button>
 
+
+      <button onClick={() => setShowModal(true)}>Logout</button>
+
+<ConfirmModal
+  isOpen={showModal}
+  onConfirm={() => {
+    logout();
+    setShowModal(false);
+  }}
+  onClose={() => setShowModal(false)}
+/>
       {/* Navigation CTA */}
       <div className="flex gap-4 mt-4">
         <Link href="/login" className="border border-indigo-600 px-6 py-2 rounded text-indigo-600">

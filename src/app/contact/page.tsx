@@ -1,5 +1,5 @@
 "use client";
-
+import { toast } from 'react-hot-toast';
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import FormInput from "@/app/components/formInput";
@@ -52,6 +52,7 @@ export default function ContactPage() {
         <button
           disabled={isSubmitting}
           className="bg-green-600 text-white px-4 py-2 mt-2 rounded hover:bg-green-700"
+          onClick={() => toast.success("Action completed!")}
         >
           {isSubmitting ? "Sending..." : "Submit"}
         </button>
