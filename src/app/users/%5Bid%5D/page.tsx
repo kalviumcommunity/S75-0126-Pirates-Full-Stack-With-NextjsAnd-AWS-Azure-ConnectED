@@ -114,7 +114,7 @@ export default function UserDetailPage() {
           <div className="bg-white rounded-lg shadow-lg p-12 text-center">
             <div className="text-4xl mb-4">⚠️</div>
             <h3 className="text-xl font-bold text-gray-900 mb-2">{error}</h3>
-            <p className="text-gray-600 mb-6">The user you're looking for could not be found.</p>
+            <p className="text-gray-600 mb-6">The user you&apos;re looking for could not be found.</p>
             <Link
               href="/users"
               className="inline-block bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-2 rounded-lg font-semibold transition duration-200"
