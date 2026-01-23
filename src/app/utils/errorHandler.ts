@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { NextResponse } from "next/server";
-import { logger } from "../lib/logger";
+import { logger } from "../../lib/logger";
 
 export function handleError(error: any, context: string) {
   const isProd = process.env.NODE_ENV === "production";
