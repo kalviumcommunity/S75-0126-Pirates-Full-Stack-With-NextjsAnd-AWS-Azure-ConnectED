@@ -1,6 +1,8 @@
 import Link from "next/link";
 import "./globals.css";
 import Providers from "./providers";
+import { Toaster } from 'react-hot-toast';
+
 
 export const metadata = {
   title: "Pirates Connect - Offline Learning",
@@ -15,6 +17,8 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
+
+         <Toaster />
         <Providers>
           <nav className="sticky top-0 z-50 bg-gradient-to-r from-indigo-600 to-blue-600 shadow-lg">
             <div className="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
