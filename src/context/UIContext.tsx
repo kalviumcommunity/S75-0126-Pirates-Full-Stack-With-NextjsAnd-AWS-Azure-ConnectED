@@ -2,38 +2,38 @@
 
 import { createContext, useContext, useState, ReactNode } from "react";
 
+type Theme = "light" | "dark";
+
 interface UIContextType {
-  theme: "light" | "dark";
+  theme: Theme;
   toggleTheme: () => void;
-  sidebarOpen: boolean;
-  toggleSidebar: () => void;
 }
 
 const UIContext = createContext<UIContextType | undefined>(undefined);
 
 export function UIProvider({ children }: { children: ReactNode }) {
-  const [theme, setTheme] = useState<"light" | "dark">("light");
-  const [sidebarOpen, setSidebarOpen] = useState(false);
+  // ✅ Initialize from localStorage safely
+  const [theme, setTheme] = useState<Theme>(() => {
+    if (typeof window !== "undefined") {
+      return (localStorage.getItem("theme") as Theme) || "light";
+    }
+    return "light";
+  });
+
+  // Apply theme class immediately
+  if (typeof window !== "undefined") {
+    document.documentElement.classList.toggle("dark", theme === "dark");
+  }
 
   const toggleTheme = () => {
-    setTheme((prev) => {
-      const next = prev === "light" ? "dark" : "light";
-      console.log("Theme changed to:", next);
-      return next;
-    });
-  };
-
-  const toggleSidebar = () => {
-    setSidebarOpen((prev) => {
-      console.log(prev ? "Sidebar closed" : "Sidebar opened");
-      return !prev;
-    });
+    const nextTheme: Theme = theme === "light" ? "dark" : "light";
+    setTheme(nextTheme);
+    localStorage.setItem("theme", nextTheme);
+    document.documentElement.classList.toggle("dark", nextTheme === "dark");
   };
 
   return (
-    <UIContext.Provider
-      value={{ theme, toggleTheme, sidebarOpen, toggleSidebar }}
-    >
+    <UIContext.Provider value={{ theme, toggleTheme }}>
       {children}
     </UIContext.Provider>
   );
