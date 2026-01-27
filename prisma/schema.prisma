@@ -6,20 +6,14 @@ datasource db {
   provider = "postgresql"
 }
 
-enum Role {
-  ADMIN
-  USER
-}
-
 model User {
-  id        Int      @id @default(autoincrement())
+  id        Int       @id @default(autoincrement())
   name      String
-  email     String   @unique
+  email     String    @unique
   password  String
-  role      Role     @default(USER)
-  createdAt DateTime @default(now())
-
-  projects Project[]
+  createdAt DateTime  @default(now())
+  role      Role      @default(USER)
+  projects  Project[]
 }
 
 model Project {
@@ -44,7 +38,6 @@ model Task {
   @@index([status, createdAt])
 }
 
-
 model File {
   id        String   @id @default(uuid())
   name      String
@@ -52,4 +45,9 @@ model File {
   size      Int
   type      String
   createdAt DateTime @default(now())
+}
+
+enum Role {
+  ADMIN
+  USER
 }
