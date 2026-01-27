@@ -7,10 +7,10 @@ import { useUI } from "@/hooks/useUI";
 import ConfirmModal from "@/app/components/confirmModal.";
 
 export default function Home() {
+  
   const { user, login, logout, isAuthenticated } = useAuth();
   const { theme, toggleTheme } = useUI();
   const [showModal, setShowModal] = useState(false);
-
   return (
     <main className="min-h-screen flex flex-col items-center gap-6 px-4 py-12
       bg-gradient-to-br from-brand-light via-white to-brand-light
