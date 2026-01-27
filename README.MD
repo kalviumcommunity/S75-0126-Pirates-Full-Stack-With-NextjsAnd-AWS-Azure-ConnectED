@@ -244,3 +244,20 @@ Token expiry (1h)
 
 Token payload (id, email, role)
 
+## Responsive & Themed Design (2.32)
+
+- Implemented custom Tailwind breakpoints for mobile, tablet, and desktop.
+- Added class-based dark mode using Tailwind CSS v4.
+- Built a persistent theme toggle using React Context and localStorage.
+- Ensured accessible color contrast in both light and dark themes.
+
+### Breakpoints
+| Device | Width |
+|------|------|
+| Mobile | < 640px |
+| Tablet | 768px |
+| Desktop | 1024px+ |
+
+### Accessibility Notes
+- High contrast colors tested in both themes
+- Theme toggle is keyboard and screen-reader accessible
