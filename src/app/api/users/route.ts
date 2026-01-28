@@ -1,18 +1,20 @@
-
-// app/api/users/route.ts
 import { NextResponse } from "next/server";
-import { userSchema } from "../../schemas/userSchema";
-import { ZodError } from "zod";
-import { sendSuccess } from "../../utils/responseHandler";
-import { handleError } from "../../utils/errorHandler";
 import { prisma } from "@/lib/prisma";
 import redis from "@/lib/redis";
+import { hasPermission } from "@/lib/hasPermission";
+import type { Role } from "@/config/roles";
+
+function getUserRole(req: Request): Role {
+  // ✅ TEMP: mock role (replace with JWT decode later)
+  const role = req.headers.get("x-user-role") as Role | null;
+  return role ?? "viewer";
+}
 
 export async function GET() {
   try {
     const cacheKey = "users:list";
-
     const cached = await redis.get(cacheKey);
+
     if (cached) {
       console.log("⚡ Cache Hit");
       return NextResponse.json(JSON.parse(cached));
@@ -20,11 +22,10 @@ export async function GET() {
 
     console.log("🐢 Cache Miss – querying DB");
     const users = await prisma.user.findMany();
-
     await redis.set(cacheKey, JSON.stringify(users), "EX", 60);
 
     return NextResponse.json(users);
-  } catch (error) {
+  } catch {
     return NextResponse.json(
       { success: false, message: "Failed to fetch users" },
       { status: 500 }
@@ -32,38 +33,16 @@ export async function GET() {
   }
 }
 
+export async function DELETE(req: Request) {
+  const role = getUserRole(req);
 
-export async function POST(req: Request) {
-  try {
-    const body = await req.json();
-
-    // HARD VALIDATION GATE
-    const validatedData = userSchema.parse(body);
-
-    // Only VALID data reaches here
-    return NextResponse.json({
-      success: true,
-      data: validatedData,
-    });
-
-  } catch (error) {
-    if (error instanceof ZodError) {
-      return NextResponse.json(
-        {
-          success: false,
-          message: "Validation Error",
-          errors: error.issues.map(e => ({
-            field: e.path.join("."),
-            message: e.message,
-          })),
-        },
-        { status: 400 }
-      );
-    }
-
+  if (!hasPermission(role, "delete")) {
     return NextResponse.json(
-      { success: false, message: "Internal Server Error" },
-      { status: 500 }
+      { error: "Access denied" },
+      { status: 403 }
     );
   }
+
+  console.log("[RBAC] Delete allowed");
+  return NextResponse.json({ success: true });
 }

@@ -261,3 +261,25 @@ Token payload (id, email, role)
 ### Accessibility Notes
 - High contrast colors tested in both themes
 - Theme toggle is keyboard and screen-reader accessible
+
+## Role-Based Access Control (RBAC)
+
+Include:
+
+Roles table
+
+Permission logic explanation
+
+Sample logs:
+
+[RBAC] role=viewer action=delete => DENIED
+[RBAC] role=admin action=delete => ALLOWED
+
+
+Reflection points:
+
+Scales better than per-user permissions
+
+Backend-enforced = secure
+
+Easy evolution to policy-based access
