@@ -14,17 +14,42 @@ export function useAuth() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    let isMounted = true;
     const token = Cookies.get("token");
     if (token) {
       try {
         const decoded = jwt.decode(token) as User;
-        setUser(decoded);
+        if (isMounted) {
+          setTimeout(() => {
+            if (isMounted) {
+              setUser(decoded);
+              setLoading(false);
+            }
+          }, 0);
+        }
       } catch {
-        setUser(null);
-        Cookies.remove("token");
+        if (isMounted) {
+          setTimeout(() => {
+            if (isMounted) {
+              setUser(null);
+              Cookies.remove("token");
+              setLoading(false);
+            }
+          }, 0);
+        }
+      }
+    } else {
+      if (isMounted) {
+        setTimeout(() => {
+          if (isMounted) {
+            setLoading(false);
+          }
+        }, 0);
       }
     }
-    setLoading(false);
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
   const logout = () => {
