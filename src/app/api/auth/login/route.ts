@@ -1,10 +1,7 @@
 import { NextResponse } from "next/server";
 import bcrypt from "bcrypt";
-import jwt from "jsonwebtoken";
 import { prisma } from "@/lib/prisma";
-
-
-const JWT_SECRET = process.env.JWT_SECRET!;
+import { createAccessToken, createRefreshToken, getRefreshTokenExpiry } from "@/lib/auth";
 
 export async function POST(req: Request) {
   try {
@@ -33,13 +30,35 @@ export async function POST(req: Request) {
       );
     }
 
-    const token = jwt.sign(
-      { id: user.id, email: user.email },
-      JWT_SECRET,
-      { expiresIn: "1h" }
-    );
+    // Security: Create short-lived access token
+    const accessToken = createAccessToken(user.id);
 
-    return NextResponse.json({ success: true, token });
+    // Security: Create long-lived refresh token (stored in HTTP-only cookie)
+    const refreshToken = createRefreshToken(user.id);
+
+    // Create response with access token
+    const response = NextResponse.json({
+      success: true,
+      accessToken,
+      user: {
+        id: user.id,
+        email: user.email,
+        name: user.name,
+      },
+    });
+
+    // Security: Set refresh token in HTTP-only, Secure, SameSite cookie
+    // This prevents XSS attacks from accessing the token
+    // SameSite=Strict prevents CSRF attacks
+    response.cookies.set("refreshToken", refreshToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "strict",
+      maxAge: getRefreshTokenExpiry(), // 7 days
+      path: "/",
+    });
+
+    return response;
   } catch {
     return NextResponse.json(
       { message: "Login failed" },
