@@ -1,6 +1,5 @@
 import { NextResponse } from "next/server";
 import bcrypt from "bcrypt";
-import jwt from "jsonwebtoken";
 import { prisma } from "@/lib/prisma";
 
 /**
@@ -22,7 +21,11 @@ if (!JWT_SECRET || !REFRESH_TOKEN_SECRET) {
 
 export async function POST(req: Request) {
   try {
-    const { email, password } = await req.json();
+    const body = await req.json();
+
+    // ✅ Sanitize email (used in DB query & logs)
+    const email = sanitizeInput(body.email);
+    const password = body.password; 
 
     // Validate input
     if (!email || !password) {
@@ -34,6 +37,7 @@ export async function POST(req: Request) {
 
     // Find user
     const user = await prisma.user.findUnique({ where: { email } });
+
     if (!user) {
       return NextResponse.json(
         { success: false, message: "Invalid email or password" },
