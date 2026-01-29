@@ -262,66 +262,26 @@ Token payload (id, email, role)
 - High contrast colors tested in both themes
 - Theme toggle is keyboard and screen-reader accessible
 
-## Role-Based Access Control (RBAC)
 
-Include:
+# Cloud Database Configuration – AWS RDS (PostgreSQL)
 
-Roles table
+## Overview
+Managed PostgreSQL database provisioned on AWS RDS and connected to a Next.js app with basic security and backups enabled.
 
-Permission logic explanation
+## Provisioning
+- Provider: AWS  
+- Service: Amazon RDS (PostgreSQL)  
+- Region: ap-south-1  
+- DB Instance: nextjs-db  
+- Database: nextjsdb  
+- Tier: Free / Dev
 
-Sample logs:
+## Network & Security
+- Public access enabled for testing.
+- Security Group allows inbound traffic on port 5432 **only from my IP**.
 
-[RBAC] role=viewer action=delete => DENIED
-[RBAC] role=admin action=delete => ALLOWED
-
-
-Reflection points:
-
-Scales better than per-user permissions
-
-Backend-enforced = secure
-
-Easy evolution to policy-based access
-
-
-🔐 Input Sanitization & OWASP Compliance
-
-Include:
-
-1️⃣ XSS Prevention
-
-Used sanitize-html to remove malicious scripts
-
-Sanitization applied before database storage
-
-React’s default output escaping relied upon
-
-2️⃣ SQL Injection Prevention
-
-Prisma ORM uses parameterized queries
-
-No raw SQL string concatenation
-
-User inputs sanitized before queries
-
-3️⃣ Before / After Example
-Input:
-<script>alert("Hacked")</script>
-
-Output:
-alert("Hacked")
-
-4️⃣ Reflection
-
-Why sanitization matters
-
-How this prevents XSS & SQLi
-
-Future improvements:
-
-CSP headers
-
-Zod validation
-
-Rate limiting
+## App Connection
+- Credentials stored in `.env.local`.
+- Connected using `pg` library.
+```env
+DATABASE_URL=postgresql://admin:<password>@<rds-endpoint>:5432/nextjsdb

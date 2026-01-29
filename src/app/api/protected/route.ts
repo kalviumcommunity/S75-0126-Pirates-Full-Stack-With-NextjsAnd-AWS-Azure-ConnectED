@@ -3,37 +3,36 @@ import { verifyAccessToken } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 
 /**
- * GET /api/protected
- *
- * Example of a protected route that requires a valid access token.
- *
- * Security implementation:
- * 1. Verifies access token from Authorization header
- * 2. Extracts userId from token payload
- * 3. Fetches user-specific data from database
- * 4. Returns 401 if token is missing, invalid, or expired
- *
- * Client usage:
- * - Include Authorization header: "Authorization: Bearer <accessToken>"
- * - If you get 401, call POST /api/auth/refresh to get a new access token
- * - Retry the request with the new access token
- *
- * Example client code:
- * ```typescript
- * const response = await fetch("/api/protected", {
+ * PROTECTED ROUTE EXAMPLE
+ * 
+ * This endpoint demonstrates how to:
+ * 1. Verify access token from Authorization header
+ * 2. Extract userId from token
+ * 3. Return user-specific data
+ * 4. Handle expired token (401)
+ * 
+ * CLIENT USAGE:
+ * ```javascript
+ * const response = await fetch('/api/protected', {
+ *   method: 'GET',
  *   headers: {
- *     "Authorization": `Bearer ${accessToken}`
+ *     'Authorization': `Bearer ${accessToken}`
  *   }
  * });
- *
+ * 
  * if (response.status === 401) {
- *   // Token expired, refresh it
- *   const refreshResponse = await fetch("/api/auth/refresh", { method: "POST" });
- *   const { accessToken: newToken } = await refreshResponse.json();
- *   // Retry with new token
+ *   // Access token expired, call /api/auth/refresh
+ *   const refreshResponse = await fetch('/api/auth/refresh', { method: 'POST' });
+ *   if (refreshResponse.ok) {
+ *     const { accessToken: newToken } = await refreshResponse.json();
+ *     // Retry original request with new token
+ *   } else {
+ *     // Refresh failed, redirect to login
+ *   }
  * }
  * ```
  */
+
 export async function GET(req: Request) {
   try {
     // Extract Authorization header
@@ -48,8 +47,8 @@ export async function GET(req: Request) {
       where: { id: userId },
       select: {
         id: true,
-        email: true,
         name: true,
+        email: true,
         role: true,
         createdAt: true,
       },
@@ -57,60 +56,116 @@ export async function GET(req: Request) {
 
     if (!user) {
       return NextResponse.json(
-        { message: "User not found" },
+        { success: false, message: "User not found" },
         { status: 404 }
       );
     }
 
-    // Return user-specific data
+    // Return user data
     return NextResponse.json(
       {
         success: true,
-        data: user,
+        message: "Protected data accessed successfully",
+        data: {
+          user,
+          timestamp: new Date().toISOString(),
+        },
       },
       { status: 200 }
     );
   } catch (error) {
-    // Token is missing, invalid, or expired
+    const errorMessage = error instanceof Error ? error.message : "Unknown error";
+
+    // Handle different error types
+    if (errorMessage === "Missing or invalid Authorization header") {
+      return NextResponse.json(
+        { success: false, message: "Missing Authorization header" },
+        { status: 401 }
+      );
+    }
+
+    if (errorMessage === "Access token expired") {
+      return NextResponse.json(
+        {
+          success: false,
+          message: "Access token expired. Please refresh your token.",
+          code: "TOKEN_EXPIRED",
+        },
+        { status: 401 }
+      );
+    }
+
+    if (errorMessage === "Invalid access token") {
+      return NextResponse.json(
+        { success: false, message: "Invalid access token" },
+        { status: 401 }
+      );
+    }
+
+    console.error("Protected route error:", error);
     return NextResponse.json(
-      {
-        message: "Unauthorized. Invalid or expired access token.",
-        code: "INVALID_TOKEN",
-      },
-      { status: 401 }
+      { success: false, message: "Internal server error" },
+      { status: 500 }
     );
   }
 }
 
 /**
- * Example POST endpoint showing how to use the protected route pattern
- * for different HTTP methods
+ * POST example: Create a resource for authenticated user
+ * Same token verification logic applies
  */
 export async function POST(req: Request) {
   try {
     const authHeader = req.headers.get("authorization");
     const payload = await verifyAccessToken(authHeader);
-    const userId = payload.userId;
 
-    // Process request using userId
-    const body = await req.json();
+    const { name } = await req.json();
+
+    // Example: Create project for authenticated user
+    const project = await prisma.project.create({
+      data: {
+        name,
+        userId: payload.userId,
+        description: "Created by authenticated user",
+      },
+    });
 
     return NextResponse.json(
       {
         success: true,
-        message: "Request processed",
-        userId,
-        data: body,
+        message: "Resource created successfully",
+        data: { project },
       },
-      { status: 200 }
+      { status: 201 }
     );
   } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : "Unknown error";
+
+    if (errorMessage === "Access token expired") {
+      return NextResponse.json(
+        {
+          success: false,
+          message: "Access token expired",
+          code: "TOKEN_EXPIRED",
+        },
+        { status: 401 }
+      );
+    }
+
+    if (
+      errorMessage === "Missing or invalid Authorization header" ||
+      errorMessage === "Invalid access token"
+    ) {
+      return NextResponse.json(
+        { success: false, message: "Unauthorized" },
+        { status: 401 }
+      );
+    }
+
+    console.error("Protected route error:", error);
     return NextResponse.json(
-      {
-        message: "Unauthorized. Invalid or expired access token.",
-        code: "INVALID_TOKEN",
-      },
-      { status: 401 }
+      { success: false, message: "Internal server error" },
+      { status: 500 }
     );
   }
 }
