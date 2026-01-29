@@ -1,11 +1,20 @@
 import { NextResponse } from "next/server";
 import bcrypt from "bcrypt";
 import { prisma } from "@/lib/prisma";
-import { createAccessToken, createRefreshToken, getRefreshTokenExpiry } from "@/lib/auth";
+import {
+  createAccessToken,
+  createRefreshToken,
+  getRefreshTokenExpiry,
+} from "@/lib/auth";
+import { sanitizeInput } from "@/app/utils/sanitize"; 
 
 export async function POST(req: Request) {
   try {
-    const { email, password } = await req.json();
+    const body = await req.json();
+
+    // ✅ Sanitize email (used in DB query & logs)
+    const email = sanitizeInput(body.email);
+    const password = body.password; 
 
     if (!email || !password) {
       return NextResponse.json(
@@ -14,7 +23,9 @@ export async function POST(req: Request) {
       );
     }
 
+    // ✅ Prisma parameterized query → SQL Injection safe
     const user = await prisma.user.findUnique({ where: { email } });
+
     if (!user) {
       return NextResponse.json(
         { message: "User not found" },
@@ -30,13 +41,10 @@ export async function POST(req: Request) {
       );
     }
 
-    // Security: Create short-lived access token
+    // 🔐 Create tokens
     const accessToken = createAccessToken(user.id);
-
-    // Security: Create long-lived refresh token (stored in HTTP-only cookie)
     const refreshToken = createRefreshToken(user.id);
 
-    // Create response with access token
     const response = NextResponse.json({
       success: true,
       accessToken,
@@ -47,9 +55,7 @@ export async function POST(req: Request) {
       },
     });
 
-    // Security: Set refresh token in HTTP-only, Secure, SameSite cookie
-    // This prevents XSS attacks from accessing the token
-    // SameSite=Strict prevents CSRF attacks
+    // 🔐 Store refresh token securely (XSS + CSRF protection)
     response.cookies.set("refreshToken", refreshToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
@@ -59,7 +65,9 @@ export async function POST(req: Request) {
     });
 
     return response;
-  } catch {
+  } catch (error) {
+    console.error("Login error:", error);
+
     return NextResponse.json(
       { message: "Login failed" },
       { status: 500 }
