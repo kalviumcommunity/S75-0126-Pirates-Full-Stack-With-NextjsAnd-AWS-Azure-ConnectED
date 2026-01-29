@@ -1,16 +1,29 @@
 import { NextResponse } from "next/server";
 import bcrypt from "bcrypt";
 import { prisma } from "@/lib/prisma";
-import { welcomeTemplate} from "@/lib/emailTemplates";
+import { welcomeTemplate } from "@/lib/emailTemplates";
 import sendgrid from "@sendgrid/mail";
+import { sanitizeInput } from "@/app/utils/sanitize"; 
 
 sendgrid.setApiKey(process.env.SENDGRID_API_KEY!);
 
 export async function POST(req: Request) {
   try {
-    const { name, email, password } = await req.json();
+    const body = await req.json();
 
-    // 1️⃣ Check if user already exists
+    // ✅ Sanitize user-controlled string inputs
+    const name = sanitizeInput(body.name);
+    const email = sanitizeInput(body.email);
+    const password = body.password; // ❌ NEVER sanitize passwords
+
+    if (!name || !email || !password) {
+      return NextResponse.json(
+        { success: false, message: "All fields are required" },
+        { status: 400 }
+      );
+    }
+
+    // 1️⃣ Check if user already exists (Prisma = SQLi safe)
     const existingUser = await prisma.user.findUnique({
       where: { email },
     });
@@ -25,7 +38,7 @@ export async function POST(req: Request) {
     // 2️⃣ Hash password
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // 3️⃣ Create user
+    // 3️⃣ Create user with sanitized data
     const user = await prisma.user.create({
       data: {
         name,
@@ -34,7 +47,7 @@ export async function POST(req: Request) {
       },
     });
 
-    // 4️⃣ Send welcome email (transactional email)
+    // 4️⃣ Send welcome email (safe sanitized name)
     await sendgrid.send({
       to: email,
       from: process.env.SENDGRID_SENDER!,
@@ -47,7 +60,6 @@ export async function POST(req: Request) {
       message: "Signup successful. Welcome email sent!",
       userId: user.id,
     });
-
   } catch (error) {
     console.error("Signup error:", error);
 
