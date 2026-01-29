@@ -283,3 +283,45 @@ Scales better than per-user permissions
 Backend-enforced = secure
 
 Easy evolution to policy-based access
+
+
+🔐 Input Sanitization & OWASP Compliance
+
+Include:
+
+1️⃣ XSS Prevention
+
+Used sanitize-html to remove malicious scripts
+
+Sanitization applied before database storage
+
+React’s default output escaping relied upon
+
+2️⃣ SQL Injection Prevention
+
+Prisma ORM uses parameterized queries
+
+No raw SQL string concatenation
+
+User inputs sanitized before queries
+
+3️⃣ Before / After Example
+Input:
+<script>alert("Hacked")</script>
+
+Output:
+alert("Hacked")
+
+4️⃣ Reflection
+
+Why sanitization matters
+
+How this prevents XSS & SQLi
+
+Future improvements:
+
+CSP headers
+
+Zod validation
+
+Rate limiting
