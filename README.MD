@@ -261,3 +261,27 @@ Token payload (id, email, role)
 ### Accessibility Notes
 - High contrast colors tested in both themes
 - Theme toggle is keyboard and screen-reader accessible
+
+
+# Cloud Database Configuration – AWS RDS (PostgreSQL)
+
+## Overview
+Managed PostgreSQL database provisioned on AWS RDS and connected to a Next.js app with basic security and backups enabled.
+
+## Provisioning
+- Provider: AWS  
+- Service: Amazon RDS (PostgreSQL)  
+- Region: ap-south-1  
+- DB Instance: nextjs-db  
+- Database: nextjsdb  
+- Tier: Free / Dev
+
+## Network & Security
+- Public access enabled for testing.
+- Security Group allows inbound traffic on port 5432 **only from my IP**.
+
+## App Connection
+- Credentials stored in `.env.local`.
+- Connected using `pg` library.
+```env
+DATABASE_URL=postgresql://admin:<password>@<rds-endpoint>:5432/nextjsdb
