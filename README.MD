@@ -285,3 +285,32 @@ Managed PostgreSQL database provisioned on AWS RDS and connected to a Next.js ap
 - Connected using `pg` library.
 ```env
 DATABASE_URL=postgresql://admin:<password>@<rds-endpoint>:5432/nextjsdb
+
+
+## 🧪 Unit Testing Setup (Jest + React Testing Library)
+
+This project uses **Jest** and **React Testing Library (RTL)** to implement unit testing for a Next.js application. The goal is to validate individual functions and UI components in isolation, ensure code reliability, and prevent regressions.
+
+---
+
+### 📌 Why Unit Testing?
+Unit testing helps:
+- Catch bugs early during development
+- Ensure individual components and utilities work as expected
+- Build confidence before deployment
+- Serve as the foundation of the testing pyramid
+
+---
+
+### 🛠 Tools Used
+- **Jest** – Test runner and assertion library
+- **React Testing Library (RTL)** – UI component testing
+- **jest-dom** – Custom DOM matchers
+- **TypeScript** – Type-safe testing
+
+---
+
+### ⚙️ Setup Overview
+Installed required dependencies:
+```bash
+npm install --save-dev jest @testing-library/react @testing-library/jest-dom @testing-library/user-event ts-jest @types/jest jest-environment-jsdom
