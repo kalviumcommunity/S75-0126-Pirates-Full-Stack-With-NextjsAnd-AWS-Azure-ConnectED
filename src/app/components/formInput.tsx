@@ -1,14 +1,14 @@
-import { FieldError, UseFormRegister } from "react-hook-form";
+import { FieldError, FieldValues, Path, UseFormRegister } from "react-hook-form";
 
-interface FormInputProps<T> {
+interface FormInputProps<T extends FieldValues> {
   label: string;
-  name: keyof T;
+  name: Path<T>;
   type?: string;
   register: UseFormRegister<T>;
   error?: FieldError;
 }
 
-export default function FormInput<T>({
+export default function FormInput<T extends FieldValues>({
   label,
   name,
   type = "text",
@@ -20,7 +20,7 @@ export default function FormInput<T>({
       <label className="block mb-1 font-medium">{label}</label>
       <input
         type={type}
-        {...register(name as string)}
+        {...register(name)}
         aria-invalid={!!error}
         className="w-full border p-2 rounded"
       />

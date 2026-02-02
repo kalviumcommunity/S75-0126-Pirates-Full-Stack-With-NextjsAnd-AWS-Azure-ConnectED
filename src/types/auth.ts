@@ -57,7 +57,7 @@ export interface LogoutResponse {
 /**
  * Generic API response wrapper
  */
-export interface ApiResponse<T = any> {
+export interface ApiResponse<T = unknown> {
   success: boolean;
   message: string;
   data?: T;
@@ -189,7 +189,7 @@ export interface DecodedToken {
   userId: number;
   iat: number;
   exp: number;
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
 /**

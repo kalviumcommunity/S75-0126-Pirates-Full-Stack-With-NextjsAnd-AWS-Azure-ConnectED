@@ -6,6 +6,8 @@
  * Use in React components and hooks.
  */
 
+import { AuthUser } from "@/types/auth";
+
 /**
  * Store access token in sessionStorage
  * (sessionStorage is cleared when tab closes - more secure than localStorage)
@@ -133,7 +135,7 @@ export async function login(
 ): Promise<{
   success: boolean;
   message: string;
-  user?: any;
+  user?: AuthUser;
   accessToken?: string;
 }> {
   try {
@@ -159,8 +161,8 @@ export async function login(
       user: data.user,
       accessToken: data.accessToken,
     };
-  } catch (error) {
-    return { success: false, message: "Network error" };
+  } catch {
+    return { success: false, message: "Login failed" };
   }
 }
 
@@ -187,10 +189,10 @@ export async function logout(): Promise<{ success: boolean; message: string }> {
       success: response.ok,
       message: data.message || "Logged out",
     };
-  } catch (error) {
+  } catch {
     // Even if logout fails, clear local token
     clearAccessToken();
-    return { success: false, message: "Logout error" };
+    return { success: false, message: "Logout failed" };
   }
 }
 
@@ -209,7 +211,7 @@ export async function refreshToken(): Promise<{
   success: boolean;
   message: string;
   accessToken?: string;
-  user?: any;
+  user?: AuthUser;
 }> {
   try {
     const response = await fetch("/api/auth/refresh", {
@@ -232,8 +234,8 @@ export async function refreshToken(): Promise<{
       accessToken: data.accessToken,
       user: data.user,
     };
-  } catch (error) {
-    return { success: false, message: "Network error" };
+  } catch {
+    return { success: false, message: "Token refresh failed" };
   }
 }
 
@@ -249,7 +251,7 @@ export async function refreshToken(): Promise<{
  * const payload = decodeToken(accessToken);
  * console.log(payload.userId); // Access token claims
  */
-export function decodeToken(token: string): Record<string, any> | null {
+export function decodeToken(token: string): Record<string, unknown> | null {
   try {
     const parts = token.split(".");
     if (parts.length !== 3) return null;
@@ -277,7 +279,7 @@ export function isTokenExpired(): boolean {
   if (!token) return true;
 
   const decoded = decodeToken(token);
-  if (!decoded || !decoded.exp) return true;
+  if (!decoded || typeof decoded.exp !== 'number') return true;
 
   // Check if expired (with 1-minute buffer)
   const now = Math.floor(Date.now() / 1000);
