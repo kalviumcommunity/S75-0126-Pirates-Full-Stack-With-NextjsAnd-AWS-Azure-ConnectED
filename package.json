@@ -45,6 +45,7 @@
     "react-hook-form": "^7.71.1",
     "react-hot-toast": "^2.6.0",
     "sanitize-html": "^2.17.0",
+    "swr": "^2.4.0",
     "zod": "^4.3.5"
   },
   "devDependencies": {
