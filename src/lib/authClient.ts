@@ -1,10 +1,4 @@
-/**
- * Authentication client utilities for frontend
- *
- * Handles token management and API calls with automatic token refresh.
- * Access token is stored in memory (not localStorage) for security.
- * Refresh token is in HTTP-only cookie (handled by browser automatically).
- */
+
 
 let accessToken: string | null = null;
 
@@ -30,7 +24,7 @@ export interface RefreshResponse {
 
 export interface ProtectedResponse {
   success: boolean;
-  data: any;
+  data: Record<string, unknown>;
 }
 
 /**

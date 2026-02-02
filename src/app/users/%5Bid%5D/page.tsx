@@ -24,7 +24,6 @@ export default function UserDetailPage() {
   const router = useRouter();
   const params = useParams();
   const userId = params.id as string;
-  const [user, setUser] = useState<User | null>(null);
   const [userData, setUserData] = useState<UserData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -33,8 +32,7 @@ export default function UserDetailPage() {
     const token = Cookies.get("token");
     if (token) {
       try {
-        const decoded = jwt.decode(token) as User;
-        setUser(decoded);
+        jwt.decode(token) as User;
         fetchUser(token, userId);
       } catch {
         router.push("/login");

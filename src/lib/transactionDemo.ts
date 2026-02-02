@@ -1,12 +1,13 @@
 import { prisma } from "./prisma";
 import { Prisma } from "@prisma/client";
 
-export async function createProjectWithInitialTask() {
+export async function createProjectWithInitialTask(userId: number) {
   try {
     const result = await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
       const project = await tx.project.create({
         data: {
           name: "Offline Learning MVP",
+          userId: userId,
         },
       });
 

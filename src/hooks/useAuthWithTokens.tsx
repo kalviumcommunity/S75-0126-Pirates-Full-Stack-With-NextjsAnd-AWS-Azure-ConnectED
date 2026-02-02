@@ -15,8 +15,6 @@ import {
   logout as clientLogout,
   refreshToken as clientRefresh,
   getAccessToken,
-  setAccessToken,
-  clearAccessToken,
   isTokenExpired,
 } from "@/lib/clientAuth";
 
@@ -78,9 +76,13 @@ export function useAuth(): UseAuthReturn {
     if (token) {
       // Token exists - user is logged in
       // (In a real app, you might verify the token with the server)
-      setUser({ id: 0, name: "", email: "", role: "" }); // Placeholder
+      setTimeout(() => {
+        setUser({ id: 0, name: "", email: "", role: "" }); // Placeholder
+        setIsLoading(false);
+      }, 0);
+    } else {
+      setTimeout(() => setIsLoading(false), 0);
     }
-    setIsLoading(false);
   }, []);
 
   const login = useCallback(

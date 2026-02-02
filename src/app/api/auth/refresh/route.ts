@@ -30,7 +30,7 @@ if (!JWT_SECRET || !REFRESH_TOKEN_SECRET) {
   );
 }
 
-export async function POST(req: Request) {
+export async function POST() {
   try {
     const cookieStore = await cookies();
     const refreshToken = cookieStore.get("refreshToken")?.value;
@@ -44,7 +44,7 @@ export async function POST(req: Request) {
     }
 
     // Verify refresh token
-    let decoded: any;
+    let decoded: { userId: number };
     try {
       decoded = jwt.verify(refreshToken, REFRESH_TOKEN_SECRET) as {
         userId: number;

@@ -7,6 +7,8 @@ type Theme = "light" | "dark";
 interface UIContextType {
   theme: Theme;
   toggleTheme: () => void;
+  sidebarOpen: boolean;
+  toggleSidebar: () => void;
 }
 
 const UIContext = createContext<UIContextType | undefined>(undefined);
@@ -20,6 +22,8 @@ export function UIProvider({ children }: { children: ReactNode }) {
     return "light";
   });
 
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+
   // Apply theme class immediately
   if (typeof window !== "undefined") {
     document.documentElement.classList.toggle("dark", theme === "dark");
@@ -32,8 +36,12 @@ export function UIProvider({ children }: { children: ReactNode }) {
     document.documentElement.classList.toggle("dark", nextTheme === "dark");
   };
 
+  const toggleSidebar = () => {
+    setSidebarOpen(!sidebarOpen);
+  };
+
   return (
-    <UIContext.Provider value={{ theme, toggleTheme }}>
+    <UIContext.Provider value={{ theme, toggleTheme, sidebarOpen, toggleSidebar }}>
       {children}
     </UIContext.Provider>
   );

@@ -42,7 +42,7 @@ export async function POST(req: Request) {
       uploadURL,
       fileKey: key,
     });
-  } catch (err) {
+  } catch {
     return NextResponse.json({ error: "Failed to generate URL" }, { status: 500 });
   }
 }

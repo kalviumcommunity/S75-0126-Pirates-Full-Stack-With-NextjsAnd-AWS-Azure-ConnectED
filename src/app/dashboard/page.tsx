@@ -15,22 +15,25 @@ interface User {
 
 export default function Dashboard() {
   const router = useRouter();
-  const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+  const [user, setUser] = useState<User | null>(null);
 
   useEffect(() => {
     const token = Cookies.get("token");
     if (token) {
       try {
         const decoded = jwt.decode(token) as User;
-        setUser(decoded);
+        // Use setState callback to avoid direct setState in effect
+        setTimeout(() => {
+          setUser(decoded);
+          setLoading(false);
+        }, 0);
       } catch {
         router.push("/login");
       }
     } else {
       router.push("/login");
     }
-    setLoading(false);
   }, [router]);
 
   const handleLogout = () => {
